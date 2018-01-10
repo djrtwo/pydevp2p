@@ -61,6 +61,7 @@ class PeerManager(WiredService):
         log.info('PeerManager init')
         WiredService.__init__(self, app)
         self.peers = []
+        self.ignored_peers = []
         self.errors = PeerErrors() if self.config['log_disconnects'] else PeerErrorsBase()
 
         # setup nodeid based on privkey
@@ -112,8 +113,13 @@ class PeerManager(WiredService):
     def _start_peer(self, connection, address, remote_pubkey=None):
         # create peer
         peer = Peer(self, connection, remote_pubkey=remote_pubkey)
-        peer.link(on_peer_exit)
         log.debug('created new peer', peer=peer, fno=connection.fileno())
+        if 'pyethapp' not in peer.remote_client_version:
+            log.debug('peer ignored', peer=peer, fno=connection.fileno())
+            self.ignored_peers.append(peer)
+            return
+
+        peer.link(on_peer_exit)
         self.peers.append(peer)
 
         # loop
@@ -213,6 +219,8 @@ class PeerManager(WiredService):
                     if node.pubkey == local_pubkey:
                         continue
                     if node.pubkey in [p.remote_pubkey for p in self.peers]:
+                        continue
+                    if node.pubkey in [p.remote_pubkey for p in self.ignored_peers]:
                         continue
                     self.connect((node.address.ip, node.address.tcp_port), node.pubkey)
             except AttributeError:
