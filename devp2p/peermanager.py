@@ -114,10 +114,6 @@ class PeerManager(WiredService):
         # create peer
         peer = Peer(self, connection, remote_pubkey=remote_pubkey)
         log.debug('created new peer', peer=peer, fno=connection.fileno())
-        if 'pyethapp' not in peer.remote_client_version:
-            log.debug('peer ignored', peer=peer, fno=connection.fileno())
-            self.ignored_peers.append(peer)
-            return
 
         peer.link(on_peer_exit)
         self.peers.append(peer)
