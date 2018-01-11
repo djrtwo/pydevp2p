@@ -140,13 +140,6 @@ class Peer(gevent.Greenlet):
         self.remote_pubkey = remote_pubkey
         self.remote_capabilities = capabilities
 
-        if 'pyethapp' not in str(self.remote_client_version):
-            log.debug('peer ignored', proto=proto, version=version,
-                      client_version=client_version_string, capabilities=capabilities)
-            self.peermanager.ignored_peers.append(self)
-            self.stop()
-            return
-
         # register in common protocols
         log.debug('connecting services', services=self.peermanager.wired_services)
         remote_services = dict()

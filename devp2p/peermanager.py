@@ -83,6 +83,15 @@ class PeerManager(WiredService):
             log.debug('connected to that node already')
             proto.send_disconnect(proto.disconnect.reason.useless_peer)
             return False
+        if remote_pubkey in [p.remote_pubkey for p in self.ignored_peers if p != proto.peer]:
+            log.debug('ignored that node already')
+            proto.send_disconnect(proto.disconnect.reason.useless_peer)
+            return False
+        if 'pyethapp' not in str(self.remote_client_version):
+            log.debug('peer ignored')
+            self.peermanager.ignored_peers.append(self)
+            proto.send_disconnect(proto.disconnect.reason.useless_peer)
+            return False
 
         return True
 
