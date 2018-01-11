@@ -89,7 +89,6 @@ class PeerManager(WiredService):
             return False
         if 'pyethapp' not in str(client_version_string):
             log.debug('peer ignored')
-            self.ignored_peers.append(self)
             proto.send_disconnect(proto.disconnect.reason.useless_peer)
             return False
 

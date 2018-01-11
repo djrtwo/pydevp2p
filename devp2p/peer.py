@@ -134,6 +134,7 @@ class Peer(gevent.Greenlet):
         agree = self.peermanager.on_hello_received(
             proto, version, client_version_string, capabilities, listen_port, remote_pubkey)
         if not agree:
+            self.peermanager.ignored_peers.append(self)
             return
 
         self.remote_client_version = client_version_string
