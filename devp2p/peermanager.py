@@ -228,10 +228,9 @@ class PeerManager(WiredService):
                     if node.pubkey in [p.remote_pubkey for p in self.ignored_peers]:
                         continue
                     self.connect((node.address.ip, node.address.tcp_port), node.pubkey)
-            except AttributeError:
+            except AttributeError as e:
                 # TODO: Is this the correct thing to do here?
-                log.error("Discovery service not available.")
-                break
+                log.error("Discovery service raised error.", error=e)
             except Exception as e:
                 log.error("discovery failed", error=e, num_peers=num_peers, min_peers=min_peers)
             gevent.sleep(self.connect_loop_delay)
